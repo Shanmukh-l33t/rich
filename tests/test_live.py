@@ -185,3 +185,18 @@ def test_live_empty() -> None:
     print(repr(result))
     assert "\n" not in result
     assert result == "\x1b[?25l\r\x1b[2K\x1b[?25h\r"
+
+
+def test_nested_live_refresh() -> None:
+    """Test that refreshing a nested Live refreshes the outer display.
+
+    Regression test for https://github.com/Textualize/rich/issues/4241
+    """
+    console = create_capture_console()
+    console.begin_capture()
+    with Live("outer", console=console, auto_refresh=False):
+        with Live("inner", console=console, auto_refresh=False) as inner:
+            inner.refresh()
+    output = console.end_capture()
+    print(repr(output))
+    assert "outer\ninner" in output
