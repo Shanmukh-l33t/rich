@@ -173,7 +173,7 @@ def test_size_can_fall_back_to_std_descriptors(
 
     get_terminal_size_mock.side_effect = get_terminal_size_mock_impl
 
-    console = Console(legacy_windows=False)
+    console = Console(legacy_windows=False, _environ={})
     with mock.patch("rich.console.WINDOWS", new=is_windows):
         w, h = console.size
     assert (w, h) == expected_size

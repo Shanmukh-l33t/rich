@@ -40,7 +40,10 @@ def test_decode_example():
     text = Text.from_ansi(ansi_text)
 
     console = Console(
-        force_terminal=True, legacy_windows=False, color_system="truecolor"
+        force_terminal=True,
+        legacy_windows=False,
+        color_system="truecolor",
+        _environ={},
     )
     with console.capture() as capture:
         console.print(text)
