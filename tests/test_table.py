@@ -8,6 +8,7 @@ import pytest
 from rich import box, errors
 from rich.console import Console
 from rich.measure import Measurement
+from rich.panel import Panel
 from rich.style import Style
 from rich.table import Column, Table
 from rich.text import Text
@@ -138,6 +139,39 @@ def test_min_width():
     output = console.end_capture()
     print(output)
     assert all(len(line) == 30 for line in output.splitlines())
+
+
+@pytest.mark.parametrize("width", [1, 2])
+def test_min_width_narrow_console(width):
+    """Regression test for https://github.com/Textualize/rich/issues/4260
+
+    A table that is wider than a very narrow console must degrade the same way
+    the table does without min_width, rather than asserting in ratio_distribute.
+
+    """
+
+    def render(table):
+        console = Console(width=width, color_system=None)
+        console.begin_capture()
+        console.print(table)
+        return console.end_capture()
+
+    output = render(Table("a", min_width=5))
+    assert output == render(Table("a"))
+    assert all(len(line) <= width for line in output.splitlines())
+
+
+def test_min_width_narrow_container():
+    """Regression test for https://github.com/Textualize/rich/issues/4260
+
+    The same table inside a container narrower than its min_width must render.
+
+    """
+    console = Console(width=40, color_system=None)
+    console.begin_capture()
+    console.print(Panel(Table("a", min_width=5), width=5))
+    output = console.end_capture()
+    assert all(len(line) <= 5 for line in output.splitlines())
 
 
 def test_no_columns():

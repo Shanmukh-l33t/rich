@@ -570,8 +570,12 @@ class Table(JupyterMixin):
                 if self.min_width is None
                 else min(self.min_width - extra_width, max_width)
             )
-            pad_widths = ratio_distribute(_max_width - table_width, widths)
-            widths = [_width + pad for _width, pad in zip(widths, pad_widths)]
+            # Every column may have collapsed to zero width when the console is
+            # narrower than the table's borders. There is no width to scale up
+            # by in that case, and the padding would be zero anyway.
+            if sum(widths):
+                pad_widths = ratio_distribute(_max_width - table_width, widths)
+                widths = [_width + pad for _width, pad in zip(widths, pad_widths)]
 
         return widths
 
